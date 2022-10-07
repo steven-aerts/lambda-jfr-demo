@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: LambdaJfrDemo
+
+Resources:
+  Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: java11
+      MemorySize: 512
+      Handler: com.airties.demo.Lambda::handleRequest
+      CodeUri: build/distributions/lambda.zip
+      Timeout: 30
+      FunctionUrlConfig:
+        AuthType: NONE
+      Policies:
+      - Statement:
+        - Effect: Allow
+          Action: s3:ListAllMyBuckets
+          Resource: '*'
+
+Outputs:
+  LambdaUrlEndpoint:
+      Description: "URL Endpoint"
+      Value:
+        Fn::GetAtt: LambdaUrl.FunctionUrl
