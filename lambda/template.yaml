@@ -23,8 +23,17 @@ Resources:
           Resource: 'arn:aws:s3:::devoxx-demo/jfr-dumps/*'
       Environment:
         Variables:
-          JAVA_TOOL_OPTIONS: "-XX:FlightRecorderOptions=stackdepth=128 -XX:StartFlightRecording=maxsize=50M,settings=profile"
+          JAVA_TOOL_OPTIONS: "-XX:FlightRecorderOptions=stackdepth=128 -XX:StartFlightRecording=maxsize=50M,settings=profile -javaagent:/opt/jfr-layer/layer-all.jar"
           JFR_DUMP_PATH: "s3://devoxx-demo/jfr-dumps/"
+      Layers:
+        - Ref: Layer
+
+  Layer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: ../layer/build/distributions/layer.zip
+      CompatibleRuntimes:
+        - java11
 
 Outputs:
   LambdaUrlEndpoint:

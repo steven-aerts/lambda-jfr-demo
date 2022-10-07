@@ -1,5 +1,8 @@
 package com.airties.demo;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +23,6 @@ public class Lambda implements RequestHandler<APIGatewayV2HTTPEvent, List<String
 
     @Override
     public List<String> handleRequest(APIGatewayV2HTTPEvent request, Context context) {
-        if (request.getQueryStringParameters() != null && request.getQueryStringParameters().containsKey("jfr")) {
-            JFRDumper.run(context);
-        }
         return s3Client.listBuckets().join().buckets().stream().map(b -> b.name()).collect(Collectors.toList());
     }
 }

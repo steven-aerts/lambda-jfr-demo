@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import com.amazonaws.services.lambda.runtime.Context;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import jdk.jfr.FlightRecorder;
 import jdk.jfr.Recording;
@@ -18,9 +19,14 @@ import software.amazon.awssdk.services.s3.S3AsyncClient;
  * This can for example be done by setting environment JAVA_TOOL_OPTIONS="-XX:StartFlightRecording=maxsize=50M,settings=profile"
  **/
 public class JFRDumper {
-    private static S3AsyncClient s3Client;
+    private S3AsyncClient s3Client;
 
-    public static void run(Context context) {
+    public static void premain(String argument) {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleWithFixedDelay(new JFRDumper()::run, 30, 30, TimeUnit.SECONDS);
+    }
+
+    public void run() {
         FlightRecorder flightRecorder = FlightRecorder.getFlightRecorder();
         if (flightRecorder.getRecordings().isEmpty()) {
             return;
@@ -33,7 +39,7 @@ public class JFRDumper {
                 throw new IllegalArgumentException("Unable to understand JFR_RECORDING_PATH " + uri);
             }
             String bucket = uri.getHost();
-            String key = uri.getPath().substring(1) + context.getLogStreamName() + "/" + file.getFileName();
+            String key = uri.getPath().substring(1) + System.getenv("AWS_LAMBDA_LOG_STREAM_NAME ") + "/" + file.getFileName();
             if (s3Client == null) {
                 s3Client = S3AsyncClient.create();
             }
