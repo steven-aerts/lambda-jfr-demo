@@ -9,7 +9,11 @@ dependencies {
 
     implementation("com.amazonaws:aws-lambda-java-core:1.2.1")
     implementation("com.amazonaws:aws-lambda-java-events:3.11.0")
-    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:s3") {
+        exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
+        exclude(group = "software.amazon.awssdk", module = "apache-client")
+    }
+    implementation("software.amazon.awssdk:aws-crt-client:2.15.0-PREVIEW")
 }
 
 tasks.register<Zip>("buildZip") {

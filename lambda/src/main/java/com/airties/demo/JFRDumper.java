@@ -9,7 +9,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 
 import jdk.jfr.FlightRecorder;
 import jdk.jfr.Recording;
-import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 
 /**
  * Helper class dumping JFR traces to S3.
@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.s3.S3Client;
  * This can for example be done by setting environment JAVA_TOOL_OPTIONS="-XX:StartFlightRecording=maxsize=50M,settings=profile"
  **/
 public class JFRDumper {
-    private static S3Client s3Client;
+    private static S3AsyncClient s3Client;
 
     public static void run(Context context) {
         FlightRecorder flightRecorder = FlightRecorder.getFlightRecorder();
@@ -35,9 +35,9 @@ public class JFRDumper {
             String bucket = uri.getHost();
             String key = uri.getPath().substring(1) + context.getLogStreamName() + "/" + file.getFileName();
             if (s3Client == null) {
-                s3Client = S3Client.create();
+                s3Client = S3AsyncClient.create();
             }
-            s3Client.putObject(b -> b.bucket(bucket).key(key), file);
+            s3Client.putObject(b -> b.bucket(bucket).key(key), file).join();
             Files.delete(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
