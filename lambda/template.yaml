@@ -18,6 +18,13 @@ Resources:
         - Effect: Allow
           Action: s3:ListAllMyBuckets
           Resource: '*'
+        - Effect: Allow
+          Action: s3:PutObject
+          Resource: 'arn:aws:s3:::devoxx-demo/jfr-dumps/*'
+      Environment:
+        Variables:
+          JAVA_TOOL_OPTIONS: "-XX:FlightRecorderOptions=stackdepth=128 -XX:StartFlightRecording=maxsize=50M,settings=profile"
+          JFR_DUMP_PATH: "s3://devoxx-demo/jfr-dumps/"
 
 Outputs:
   LambdaUrlEndpoint:

@@ -12,7 +12,10 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 public class Lambda implements RequestHandler<APIGatewayV2HTTPEvent, List<String>> {
     @Override
-    public List<String> handleRequest(APIGatewayV2HTTPEvent request, Context context) {        
+    public List<String> handleRequest(APIGatewayV2HTTPEvent request, Context context) {
+        if (request.getQueryStringParameters() != null && request.getQueryStringParameters().containsKey("jfr")) {
+            JFRDumper.run(context);
+        }
         return S3Client.create().listBuckets().buckets().stream().map(b -> b.name()).collect(Collectors.toList());
     }
 }
